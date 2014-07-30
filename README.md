@@ -4,9 +4,12 @@ Colorable writer for windows
 
 ## Too Bad!
 
+![](https://raw.githubusercontent.com/mattn/go-colorable/gh-pages/bad.png)
+
 
 ## So Good!
 
+![](https://raw.githubusercontent.com/mattn/go-colorable/gh-pages/good.png)
 
 ## Usage
 
