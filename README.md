@@ -14,7 +14,7 @@ Colorable writer for windows
 ## Usage
 
 ```go
-logrus.SetOutput(colorable.NewColorableWriter())
+logrus.SetOutput(colorable.NewColorableStdout())
 
 logrus.Info("succeeded")
 logrus.Warn("not correct")
