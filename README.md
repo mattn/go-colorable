@@ -25,6 +25,8 @@ logrus.Error("something error")
 logrus.Fatal("panic")
 ```
 
+You can comple above code on non-windows OSs.
+
 ## Installation
 
 ```
