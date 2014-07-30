@@ -3,9 +3,10 @@
 package colorable
 
 import (
+	"io"
 	"os"
 )
 
-func NewColorableWriter() *Writer {
+func NewColorableStdout() io.Writer {
 	return os.Stdout
 }

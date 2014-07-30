@@ -3,6 +3,7 @@ package colorable
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
 	"strconv"
 	"strings"
@@ -59,7 +60,7 @@ type Writer struct {
 	lastbuf bytes.Buffer
 }
 
-func NewColorableWriter() *Writer {
+func NewColorableStdout() io.Writer {
 	return &Writer{out: syscall.Handle(os.Stdout.Fd())}
 }
 
