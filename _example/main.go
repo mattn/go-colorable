@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	logrus.SetOutput(colorable.NewColorableWriter())
+	logrus.SetOutput(colorable.NewColorableStdout())
 
 	logrus.Info("succeeded")
 	logrus.Warn("not correct")
