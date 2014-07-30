@@ -64,6 +64,10 @@ func NewColorableStdout() io.Writer {
 	return &Writer{out: syscall.Handle(os.Stdout.Fd())}
 }
 
+func NewColorableStderr() io.Writer {
+	return &Writer{out: syscall.Handle(os.Stderr.Fd())}
+}
+
 func (w *Writer) Write(data []byte) (n int, err error) {
 	var csbi consoleScreenBufferInfo
 	procGetConsoleScreenBufferInfo.Call(uintptr(w.out), uintptr(unsafe.Pointer(&csbi)))

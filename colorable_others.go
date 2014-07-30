@@ -10,3 +10,7 @@ import (
 func NewColorableStdout() io.Writer {
 	return os.Stdout
 }
+
+func NewColorableStderr() io.Writer {
+	return os.Stderr
+}
