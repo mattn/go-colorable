@@ -1,6 +1,9 @@
 # go-colorable
 
-Colorable writer for windows
+Colorable writer for windows.
+
+For example, most of logger packages doesn't show colors on windows. (I know we can do it with ansicon. But I don't want.)
+This package is possible to handle escape sequence for ansi color on windows.
 
 ## Too Bad!
 
