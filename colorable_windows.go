@@ -58,10 +58,14 @@ var (
 type Writer struct {
 	out     syscall.Handle
 	lastbuf bytes.Buffer
+	oldattr word
 }
 
 func NewColorableStdout() io.Writer {
-	return &Writer{out: syscall.Handle(os.Stdout.Fd())}
+	var csbi consoleScreenBufferInfo
+	out := syscall.Handle(os.Stdout.Fd())
+	procGetConsoleScreenBufferInfo.Call(uintptr(out), uintptr(unsafe.Pointer(&csbi)))
+	return &Writer{out: out, oldattr: csbi.attributes}
 }
 
 func NewColorableStderr() io.Writer {
@@ -71,10 +75,6 @@ func NewColorableStderr() io.Writer {
 func (w *Writer) Write(data []byte) (n int, err error) {
 	var csbi consoleScreenBufferInfo
 	procGetConsoleScreenBufferInfo.Call(uintptr(w.out), uintptr(unsafe.Pointer(&csbi)))
-	attr_old := csbi.attributes
-	defer func() {
-		procSetConsoleTextAttribute.Call(uintptr(w.out), uintptr(attr_old))
-	}()
 
 	er := bytes.NewBuffer(data)
 loop:
@@ -125,14 +125,14 @@ loop:
 			attr := csbi.attributes
 			cs := buf.String()
 			if cs == "" {
-				procSetConsoleTextAttribute.Call(uintptr(w.out), uintptr(attr_old))
+				procSetConsoleTextAttribute.Call(uintptr(w.out), uintptr(w.oldattr))
 				continue
 			}
 			for _, ns := range strings.Split(cs, ";") {
 				if n, err = strconv.Atoi(ns); err == nil {
 					switch {
 					case n == 0 || n == 100:
-						attr = attr_old
+						attr = w.oldattr
 					case 1 <= n && n <= 5:
 						attr |= foregroundIntensity
 					case n == 7:
