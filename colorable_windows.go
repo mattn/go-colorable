@@ -442,6 +442,8 @@ loop:
 								}
 								i += 2
 							}
+						} else {
+							attr = attr & (w.oldattr & backgroundMask)
 						}
 					case n == 39:
 						if i < len(token)-2 && token[i+1] == "5" {
@@ -460,6 +462,8 @@ loop:
 								}
 								i += 2
 							}
+						} else {
+							attr = attr & (w.oldattr & foregroundMask)
 						}
 					case 40 <= n && n <= 47:
 						attr = (attr & foregroundMask)
