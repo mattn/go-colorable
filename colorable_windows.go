@@ -3,6 +3,7 @@ package colorable
 import (
 	"bytes"
 	"fmt"
+	"github.com/mattn/go-isatty"
 	"io"
 	"os"
 	"strconv"
@@ -56,20 +57,32 @@ var (
 )
 
 type Writer struct {
-	out     syscall.Handle
+	out     io.Writer
+	handle  syscall.Handle
 	lastbuf bytes.Buffer
 	oldattr word
 }
 
 func NewColorableStdout() io.Writer {
 	var csbi consoleScreenBufferInfo
-	out := syscall.Handle(os.Stdout.Fd())
-	procGetConsoleScreenBufferInfo.Call(uintptr(out), uintptr(unsafe.Pointer(&csbi)))
-	return &Writer{out: out, oldattr: csbi.attributes}
+	out := os.Stdout
+	if !isatty.IsTerminal(out.Fd()) {
+		return out
+	}
+	handle := syscall.Handle(out.Fd())
+	procGetConsoleScreenBufferInfo.Call(uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
+	return &Writer{out: out, handle: handle, oldattr: csbi.attributes}
 }
 
 func NewColorableStderr() io.Writer {
-	return &Writer{out: syscall.Handle(os.Stderr.Fd())}
+	var csbi consoleScreenBufferInfo
+	out := os.Stderr
+	if !isatty.IsTerminal(out.Fd()) {
+		return out
+	}
+	handle := syscall.Handle(out.Fd())
+	procGetConsoleScreenBufferInfo.Call(uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
+	return &Writer{out: out, handle: handle, oldattr: csbi.attributes}
 }
 
 var color256 = map[int]int{
@@ -333,12 +346,12 @@ var color256 = map[int]int{
 
 func (w *Writer) Write(data []byte) (n int, err error) {
 	var csbi consoleScreenBufferInfo
-	procGetConsoleScreenBufferInfo.Call(uintptr(w.out), uintptr(unsafe.Pointer(&csbi)))
+	procGetConsoleScreenBufferInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&csbi)))
 
 	er := bytes.NewBuffer(data)
 loop:
 	for {
-		r1, _, err := procGetConsoleScreenBufferInfo.Call(uintptr(w.out), uintptr(unsafe.Pointer(&csbi)))
+		r1, _, err := procGetConsoleScreenBufferInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&csbi)))
 		if r1 == 0 {
 			break loop
 		}
@@ -348,7 +361,7 @@ loop:
 			break loop
 		}
 		if c1 != 0x1b {
-			fmt.Print(string(c1))
+			fmt.Fprint(w.out, string(c1))
 			continue
 		}
 		c2, _, err := er.ReadRune()
@@ -384,7 +397,7 @@ loop:
 			attr := csbi.attributes
 			cs := buf.String()
 			if cs == "" {
-				procSetConsoleTextAttribute.Call(uintptr(w.out), uintptr(w.oldattr))
+				procSetConsoleTextAttribute.Call(uintptr(w.handle), uintptr(w.oldattr))
 				continue
 			}
 			token := strings.Split(cs, ";")
@@ -417,7 +430,7 @@ loop:
 							if n256, err := strconv.Atoi(token[i+2]); err == nil {
 								attr = (attr & backgroundMask)
 								rgb := color256[n256]
-								r, g, b := (rgb & 0xFF0000) >> 16, (rgb & 0x00FF00) >> 8, rgb & 0x0000FF
+								r, g, b := (rgb&0xFF0000)>>16, (rgb&0x00FF00)>>8, rgb&0x0000FF
 								if r > 127 {
 									attr |= foregroundRed
 								}
@@ -435,7 +448,7 @@ loop:
 							if n256, err := strconv.Atoi(token[i+2]); err == nil {
 								attr = (attr & foregroundMask)
 								rgb := color256[n256]
-								r, g, b := (rgb & 0xFF0000) >> 16, (rgb & 0x00FF00) >> 8, rgb & 0x0000FF
+								r, g, b := (rgb&0xFF0000)>>16, (rgb&0x00FF00)>>8, rgb&0x0000FF
 								if r > 127 {
 									attr |= backgroundRed
 								}
@@ -460,7 +473,7 @@ loop:
 							attr |= backgroundBlue
 						}
 					}
-					procSetConsoleTextAttribute.Call(uintptr(w.out), uintptr(attr))
+					procSetConsoleTextAttribute.Call(uintptr(w.handle), uintptr(attr))
 				}
 			}
 		}
