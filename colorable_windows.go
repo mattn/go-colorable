@@ -519,6 +519,7 @@ func toConsoleColor(rgb int) (c consoleColor) {
 		if b >= a {
 			c.blue = true
 		}
+		// non-intensed white is lighter than intensed black, so swap those.
 		if c.red && c.green && c.blue {
 			c.red, c.green, c.blue = false, false, false
 			c.intensity = true
@@ -538,6 +539,7 @@ func toConsoleColor(rgb int) (c consoleColor) {
 			c.blue = true
 		}
 		c.intensity = true
+		// intensed black is darker than non-intensed white, so swap those.
 		if !c.red && !c.green && !c.blue {
 			c.red, c.green, c.blue = true, true, true
 			c.intensity = false
