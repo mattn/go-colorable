@@ -3,13 +3,14 @@ package colorable
 import (
 	"bytes"
 	"fmt"
-	"github.com/mattn/go-isatty"
 	"io"
 	"os"
 	"strconv"
 	"strings"
 	"syscall"
 	"unsafe"
+
+	"github.com/mattn/go-isatty"
 )
 
 const (
@@ -425,46 +426,20 @@ loop:
 						if (n-30)&4 != 0 {
 							attr |= foregroundBlue
 						}
-					case n == 38:
+					case n == 38: // set foreground color.
 						if i < len(token)-2 && token[i+1] == "5" {
 							if n256, err := strconv.Atoi(token[i+2]); err == nil {
 								attr = (attr & backgroundMask)
 								rgb := color256[n256]
-								r, g, b := (rgb&0xFF0000)>>16, (rgb&0x00FF00)>>8, rgb&0x0000FF
-								if r > 127 {
-									attr |= foregroundRed
-								}
-								if g > 127 {
-									attr |= foregroundGreen
-								}
-								if b > 127 {
-									attr |= foregroundBlue
-								}
+								attr |= toConsoleColor(rgb).foregroundAttr()
 								i += 2
 							}
 						} else {
 							attr = attr & (w.oldattr & backgroundMask)
 						}
-					case n == 39:
-						if i < len(token)-2 && token[i+1] == "5" {
-							if n256, err := strconv.Atoi(token[i+2]); err == nil {
-								attr = (attr & foregroundMask)
-								rgb := color256[n256]
-								r, g, b := (rgb&0xFF0000)>>16, (rgb&0x00FF00)>>8, rgb&0x0000FF
-								if r > 127 {
-									attr |= backgroundRed
-								}
-								if g > 127 {
-									attr |= backgroundGreen
-								}
-								if b > 127 {
-									attr |= backgroundBlue
-								}
-								i += 2
-							}
-						} else {
-							attr = attr & (w.oldattr & foregroundMask)
-						}
+					case n == 39: // reset foreground color.
+						attr &= backgroundMask
+						attr |= w.oldattr & foregroundMask
 					case 40 <= n && n <= 47:
 						attr = (attr & foregroundMask)
 						if (n-40)&1 != 0 {
@@ -476,6 +451,20 @@ loop:
 						if (n-40)&4 != 0 {
 							attr |= backgroundBlue
 						}
+					case n == 48: // set background color.
+						if i < len(token)-2 && token[i+1] == "5" {
+							if n256, err := strconv.Atoi(token[i+2]); err == nil {
+								attr = (attr & foregroundMask)
+								rgb := color256[n256]
+								attr |= toConsoleColor(rgb).backgroundAttr()
+								i += 2
+							}
+						} else {
+							attr = attr & (w.oldattr & foregroundMask)
+						}
+					case n == 49: // reset foreground color.
+						attr &= foregroundMask
+						attr |= w.oldattr & backgroundMask
 					}
 					procSetConsoleTextAttribute.Call(uintptr(w.handle), uintptr(attr))
 				}
@@ -483,4 +472,104 @@ loop:
 		}
 	}
 	return len(data) - w.lastbuf.Len(), nil
+}
+
+type consoleColor struct {
+	red       bool
+	green     bool
+	blue      bool
+	intensity bool
+}
+
+func minmax3(a, b, c int) (min, max int) {
+	if a < b {
+		if b < c {
+			return a, c
+		} else if a < c {
+			return a, b
+		} else {
+			return c, b
+		}
+	} else {
+		if a < c {
+			return b, c
+		} else if b < c {
+			return b, a
+		} else {
+			return c, a
+		}
+	}
+}
+
+func toConsoleColor(rgb int) (c consoleColor) {
+	r, g, b := (rgb&0xFF0000)>>16, (rgb&0x00FF00)>>8, rgb&0x0000FF
+	min, max := minmax3(r, g, b)
+	a := (min + max) / 2
+	if r < 128 && g < 128 && b < 128 {
+		if r >= a {
+			c.red = true
+		}
+		if g >= a {
+			c.green = true
+		}
+		if b >= a {
+			c.blue = true
+		}
+		if c.red && c.green && c.blue {
+			c.red, c.green, c.blue = false, false, false
+			c.intensity = true
+		}
+	} else {
+		if min < 128 {
+			min = 128
+			a = (min + max) / 2
+		}
+		if r >= a {
+			c.red = true
+		}
+		if g >= a {
+			c.green = true
+		}
+		if b >= a {
+			c.blue = true
+		}
+		c.intensity = true
+		if !c.red && !c.green && !c.blue {
+			c.red, c.green, c.blue = true, true, true
+			c.intensity = false
+		}
+	}
+	return c
+}
+
+func (c consoleColor) foregroundAttr() (attr word) {
+	if c.red {
+		attr |= foregroundRed
+	}
+	if c.green {
+		attr |= foregroundGreen
+	}
+	if c.blue {
+		attr |= foregroundBlue
+	}
+	if c.intensity {
+		attr |= foregroundIntensity
+	}
+	return
+}
+
+func (c consoleColor) backgroundAttr() (attr word) {
+	if c.red {
+		attr |= backgroundRed
+	}
+	if c.green {
+		attr |= backgroundGreen
+	}
+	if c.blue {
+		attr |= backgroundBlue
+	}
+	if c.intensity {
+		attr |= backgroundIntensity
+	}
+	return
 }
