@@ -429,9 +429,11 @@ loop:
 					case n == 38: // set foreground color.
 						if i < len(token)-2 && token[i+1] == "5" {
 							if n256, err := strconv.Atoi(token[i+2]); err == nil {
-								attr = (attr & backgroundMask)
-								rgb := color256[n256]
-								attr |= toConsoleColor(rgb).foregroundAttr()
+								if n256foreAttr == nil {
+									n256setup()
+								}
+								attr &= backgroundMask
+								attr |= n256foreAttr[n256]
 								i += 2
 							}
 						} else {
@@ -454,9 +456,11 @@ loop:
 					case n == 48: // set background color.
 						if i < len(token)-2 && token[i+1] == "5" {
 							if n256, err := strconv.Atoi(token[i+2]); err == nil {
-								attr = (attr & foregroundMask)
-								rgb := color256[n256]
-								attr |= toConsoleColor(rgb).backgroundAttr()
+								if n256backAttr == nil {
+									n256setup()
+								}
+								attr &= foregroundMask
+								attr |= n256backAttr[n256]
 								i += 2
 							}
 						} else {
@@ -572,4 +576,17 @@ func (c consoleColor) backgroundAttr() (attr word) {
 		attr |= backgroundIntensity
 	}
 	return
+}
+
+var n256foreAttr []word
+var n256backAttr []word
+
+func n256setup() {
+	n256foreAttr = make([]word, 256)
+	n256backAttr = make([]word, 256)
+	for i, rgb := range color256 {
+		c := toConsoleColor(rgb)
+		n256foreAttr[i] = c.foregroundAttr()
+		n256backAttr[i] = c.backgroundAttr()
+	}
 }
