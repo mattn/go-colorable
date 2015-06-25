@@ -6,6 +6,7 @@ import (
 )
 
 func main() {
+	logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
 	logrus.SetOutput(colorable.NewColorableStdout())
 
 	logrus.Info("succeeded")
