@@ -402,7 +402,8 @@ loop:
 				continue
 			}
 			token := strings.Split(cs, ";")
-			for i, ns := range token {
+			for i := 0; i < len(token); i+=1 {
+				ns := token[i]
 				if n, err = strconv.Atoi(ns); err == nil {
 					switch {
 					case n == 0 || n == 100:
@@ -427,7 +428,7 @@ loop:
 							attr |= foregroundBlue
 						}
 					case n == 38: // set foreground color.
-						if i < len(token)-2 && token[i+1] == "5" {
+						if i < len(token)-2 && (token[i+1] == "5" || token[i+1] == "05") {
 							if n256, err := strconv.Atoi(token[i+2]); err == nil {
 								if n256foreAttr == nil {
 									n256setup()
