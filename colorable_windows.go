@@ -59,13 +59,13 @@ var (
 )
 
 type Writer struct {
-	out     io.Writer
+	out     io.WriteCloser
 	handle  syscall.Handle
 	lastbuf bytes.Buffer
 	oldattr word
 }
 
-func NewColorableStdout() io.Writer {
+func NewColorableStdout() io.WriteCloser {
 	var csbi consoleScreenBufferInfo
 	out := os.Stdout
 	if !isatty.IsTerminal(out.Fd()) {
@@ -76,7 +76,7 @@ func NewColorableStdout() io.Writer {
 	return &Writer{out: out, handle: handle, oldattr: csbi.attributes}
 }
 
-func NewColorableStderr() io.Writer {
+func NewColorableStderr() io.WriteCloser {
 	var csbi consoleScreenBufferInfo
 	out := os.Stderr
 	if !isatty.IsTerminal(out.Fd()) {
