@@ -471,6 +471,30 @@ loop:
 					case n == 49: // reset foreground color.
 						attr &= foregroundMask
 						attr |= w.oldattr & backgroundMask
+					case 90 <= n && n <= 97:
+						attr = (attr & backgroundMask)
+						attr |= foregroundIntensity
+						if (n-90)&1 != 0 {
+							attr |= foregroundRed
+						}
+						if (n-90)&2 != 0 {
+							attr |= foregroundGreen
+						}
+						if (n-90)&4 != 0 {
+							attr |= foregroundBlue
+						}
+					case 100 <= n && n <= 107:
+						attr = (attr & foregroundMask)
+						attr |= backgroundIntensity
+						if (n-100)&1 != 0 {
+							attr |= backgroundRed
+						}
+						if (n-100)&2 != 0 {
+							attr |= backgroundGreen
+						}
+						if (n-100)&4 != 0 {
+							attr |= backgroundBlue
+						}
 					}
 					procSetConsoleTextAttribute.Call(uintptr(w.handle), uintptr(attr))
 				}
