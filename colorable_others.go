@@ -7,6 +7,10 @@ import (
 	"os"
 )
 
+func NewColorable(file *os.File) io.Writer {
+	return file
+}
+
 func NewColorableStdout() io.Writer {
 	return os.Stdout
 }
