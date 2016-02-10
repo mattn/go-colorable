@@ -7,10 +7,10 @@ import (
 	"os"
 )
 
-func NewColorableStdout() io.Writer {
+func NewColorableStdout() io.WriteCloser {
 	return os.Stdout
 }
 
-func NewColorableStderr() io.Writer {
+func NewColorableStderr() io.WriteCloser {
 	return os.Stderr
 }
