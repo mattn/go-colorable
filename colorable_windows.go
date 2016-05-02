@@ -535,7 +535,7 @@ loop:
 					case n == 27:
 						attr = ((attr & foregroundMask) << 4) | ((attr & backgroundMask) >> 4)
 					case 30 <= n && n <= 37:
-						attr = (attr & backgroundMask)
+						attr = (attr & backgroundMask) | (attr & foregroundIntensity)
 						if (n-30)&1 != 0 {
 							attr |= foregroundRed
 						}
@@ -562,7 +562,7 @@ loop:
 						attr &= backgroundMask
 						attr |= w.oldattr & foregroundMask
 					case 40 <= n && n <= 47:
-						attr = (attr & foregroundMask)
+						attr = (attr & backgroundMask) | (attr & backgroundIntensity)
 						if (n-40)&1 != 0 {
 							attr |= backgroundRed
 						}
