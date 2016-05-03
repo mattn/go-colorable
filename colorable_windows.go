@@ -482,6 +482,7 @@ loop:
 			if err != nil {
 				continue
 			}
+			procGetConsoleScreenBufferInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&csbi)))
 			var cursor coord
 			switch n {
 			case 0:
@@ -500,6 +501,7 @@ loop:
 			if err != nil {
 				continue
 			}
+			procGetConsoleScreenBufferInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&csbi)))
 			var cursor coord
 			switch n {
 			case 0:
