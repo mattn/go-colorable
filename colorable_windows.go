@@ -52,6 +52,11 @@ type consoleScreenBufferInfo struct {
 	maximumWindowSize coord
 }
 
+type consoleCursorInfo struct {
+	size    dword
+	visible int32
+}
+
 var (
 	kernel32                       = syscall.NewLazyDLL("kernel32.dll")
 	procGetConsoleScreenBufferInfo = kernel32.NewProc("GetConsoleScreenBufferInfo")
@@ -59,6 +64,8 @@ var (
 	procSetConsoleCursorPosition   = kernel32.NewProc("SetConsoleCursorPosition")
 	procFillConsoleOutputCharacter = kernel32.NewProc("FillConsoleOutputCharacterW")
 	procFillConsoleOutputAttribute = kernel32.NewProc("FillConsoleOutputAttribute")
+	procGetConsoleCursorInfo       = kernel32.NewProc("GetConsoleCursorInfo")
+	procSetConsoleCursorInfo       = kernel32.NewProc("SetConsoleCursorInfo")
 )
 
 type Writer struct {
@@ -619,6 +626,22 @@ loop:
 					}
 					procSetConsoleTextAttribute.Call(uintptr(w.handle), uintptr(attr))
 				}
+			}
+		case 'h':
+			cs := buf.String()
+			if cs == "?25" {
+				var ci consoleCursorInfo
+				procGetConsoleCursorInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&ci)))
+				ci.visible = 0
+				procSetConsoleCursorInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&ci)))
+			}
+		case 'l':
+			cs := buf.String()
+			if cs == "?25" {
+				var ci consoleCursorInfo
+				procGetConsoleCursorInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&ci)))
+				ci.visible = 1
+				procSetConsoleCursorInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&ci)))
 			}
 		}
 	}
