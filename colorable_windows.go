@@ -482,7 +482,7 @@ loop:
 				continue
 			}
 			csbi.cursorPosition.x = short(n2)
-			csbi.cursorPosition.x = short(n1)
+			csbi.cursorPosition.y = short(n1)
 			procSetConsoleCursorPosition.Call(uintptr(w.handle), *(*uintptr)(unsafe.Pointer(&csbi.cursorPosition)))
 		case 'J':
 			n, err := strconv.Atoi(buf.String())
