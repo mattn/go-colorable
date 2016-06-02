@@ -531,7 +531,7 @@ loop:
 				continue
 			}
 			token := strings.Split(cs, ";")
-			for i := 0; i < len(token); i += 1 {
+			for i := 0; i < len(token); i++ {
 				ns := token[i]
 				if n, err = strconv.Atoi(ns); err == nil {
 					switch {
@@ -546,7 +546,7 @@ loop:
 					case n == 27:
 						attr = ((attr & foregroundMask) << 4) | ((attr & backgroundMask) >> 4)
 					case 30 <= n && n <= 37:
-						attr = (attr & backgroundMask) | (attr & foregroundIntensity)
+						attr &= backgroundMask
 						if (n-30)&1 != 0 {
 							attr |= foregroundRed
 						}
@@ -573,7 +573,7 @@ loop:
 						attr &= backgroundMask
 						attr |= w.oldattr & foregroundMask
 					case 40 <= n && n <= 47:
-						attr = (attr & backgroundMask) | (attr & backgroundIntensity)
+						attr &= foregroundMask
 						if (n-40)&1 != 0 {
 							attr |= backgroundRed
 						}
