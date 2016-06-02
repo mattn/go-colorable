@@ -632,7 +632,7 @@ loop:
 			if cs == "?25" {
 				var ci consoleCursorInfo
 				procGetConsoleCursorInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&ci)))
-				ci.visible = 0
+				ci.visible = 1
 				procSetConsoleCursorInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&ci)))
 			}
 		case 'l':
@@ -640,7 +640,7 @@ loop:
 			if cs == "?25" {
 				var ci consoleCursorInfo
 				procGetConsoleCursorInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&ci)))
-				ci.visible = 1
+				ci.visible = 0
 				procSetConsoleCursorInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&ci)))
 			}
 		}
