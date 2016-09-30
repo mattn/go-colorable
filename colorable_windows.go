@@ -360,7 +360,7 @@ func (w *Writer) Write(data []byte) (n int, err error) {
 	var csbi consoleScreenBufferInfo
 	procGetConsoleScreenBufferInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&csbi)))
 
-	er := bytes.NewBuffer(data)
+	er := bytes.NewReader(data)
 	var bw [1]byte
 loop:
 	for {
