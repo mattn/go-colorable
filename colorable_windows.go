@@ -360,8 +360,6 @@ var color256 = map[int]int{
 	255: 0xeeeeee,
 }
 
-var f *os.File
-
 // Write write data on console
 func (w *Writer) Write(data []byte) (n int, err error) {
 	var csbi consoleScreenBufferInfo
