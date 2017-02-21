@@ -519,9 +519,12 @@ loop:
 			procFillConsoleOutputCharacter.Call(uintptr(w.handle), uintptr(' '), uintptr(count), *(*uintptr)(unsafe.Pointer(&cursor)), uintptr(unsafe.Pointer(&written)))
 			procFillConsoleOutputAttribute.Call(uintptr(w.handle), uintptr(csbi.attributes), uintptr(count), *(*uintptr)(unsafe.Pointer(&cursor)), uintptr(unsafe.Pointer(&written)))
 		case 'K':
-			n, err := strconv.Atoi(buf.String())
-			if err != nil {
-				continue
+			n := 0
+			if buf.Len() > 0 {
+				n, err = strconv.Atoi(buf.String())
+				if err != nil {
+					continue
+				}
 			}
 			var cursor coord
 			switch n {
