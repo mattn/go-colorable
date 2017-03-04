@@ -71,7 +71,6 @@ var (
 type Writer struct {
 	out     io.Writer
 	handle  syscall.Handle
-	lastbuf bytes.Buffer
 	oldattr word
 	oldpos  coord
 }
@@ -385,12 +384,9 @@ loop:
 		}
 		c2, err := er.ReadByte()
 		if err != nil {
-			w.lastbuf.WriteByte(c1)
 			break loop
 		}
 		if c2 != 0x5b {
-			w.lastbuf.WriteByte(c1)
-			w.lastbuf.WriteByte(c2)
 			continue
 		}
 
@@ -399,9 +395,6 @@ loop:
 		for {
 			c, err := er.ReadByte()
 			if err != nil {
-				w.lastbuf.WriteByte(c1)
-				w.lastbuf.WriteByte(c2)
-				w.lastbuf.Write(buf.Bytes())
 				break loop
 			}
 			if ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '@' {
