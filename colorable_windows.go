@@ -479,7 +479,6 @@ loop:
 				case 2:
 					n1, err := strconv.Atoi(token[0])
 					if err != nil {
-						panic(1)
 						continue
 					}
 					n2, err := strconv.Atoi(token[1])
@@ -555,7 +554,7 @@ loop:
 						attr |= foregroundIntensity
 					case n == 7:
 						attr = ((attr & foregroundMask) << 4) | ((attr & backgroundMask) >> 4)
-					case 22 == n || n == 25 || n == 25:
+					case n == 22 || n == 25:
 						attr |= foregroundIntensity
 					case n == 27:
 						attr = ((attr & foregroundMask) << 4) | ((attr & backgroundMask) >> 4)
