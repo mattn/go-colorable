@@ -31,6 +31,16 @@ func TestEncoding(t *testing.T) {
 	checkEncoding(t, []byte{233})   // 'é' in Latin-1
 }
 
+func TestNonColorable(t *testing.T) {
+	var buf bytes.Buffer
+	want := "hello"
+	NewNonColorable(&buf).Write([]byte("\x1b[0m" + want + "\x1b[2J"))
+	got := buf.String()
+	if got != "hello" {
+		t.Fatalf("want %q but %q", "hello", got)
+	}
+}
+
 func TestColorable(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skipf("skip this test on windows")
