@@ -48,6 +48,21 @@ func TestNonColorable(t *testing.T) {
 	}
 }
 
+func TestNonColorableNil(t *testing.T) {
+	paniced := false
+	func() {
+		defer func() {
+			recover()
+			paniced = true
+		}()
+		NewNonColorable(nil)
+	}()
+
+	if !paniced {
+		t.Fatalf("should panic")
+	}
+}
+
 func TestColorable(t *testing.T) {
 	if runtime.GOOS == "windows" {
 		t.Skipf("skip this test on windows")
