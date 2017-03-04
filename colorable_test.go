@@ -2,6 +2,8 @@ package colorable
 
 import (
 	"bytes"
+	"os"
+	"runtime"
 	"testing"
 )
 
@@ -27,4 +29,22 @@ func TestEncoding(t *testing.T) {
 	checkEncoding(t, []byte(`abc`)) // "abc"
 	checkEncoding(t, []byte(`é`))   // "é" in UTF-8
 	checkEncoding(t, []byte{233})   // 'é' in Latin-1
+}
+
+func TestColorable(t *testing.T) {
+	if runtime.GOOS == "windows" {
+		t.Skipf("skip this test on windows")
+	}
+	_, ok := NewColorableStdout().(*os.File)
+	if !ok {
+		t.Fatalf("should os.Stdout on UNIX")
+	}
+	_, ok = NewColorableStderr().(*os.File)
+	if !ok {
+		t.Fatalf("should os.Stdout on UNIX")
+	}
+	_, ok = NewColorable(os.Stdout).(*os.File)
+	if !ok {
+		t.Fatalf("should os.Stdout on UNIX")
+	}
 }
