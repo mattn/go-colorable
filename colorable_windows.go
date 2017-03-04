@@ -67,6 +67,7 @@ var (
 	procSetConsoleCursorInfo       = kernel32.NewProc("SetConsoleCursorInfo")
 )
 
+// Writer provide colorable Writer to the console
 type Writer struct {
 	out     io.Writer
 	handle  syscall.Handle
@@ -86,9 +87,8 @@ func NewColorable(file *os.File) io.Writer {
 		handle := syscall.Handle(file.Fd())
 		procGetConsoleScreenBufferInfo.Call(uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
 		return &Writer{out: file, handle: handle, oldattr: csbi.attributes, oldpos: coord{0, 0}}
-	} else {
-		return file
 	}
+	return file
 }
 
 // NewColorableStdout return new instance of Writer which handle escape sequence for stdout.
