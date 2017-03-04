@@ -37,7 +37,14 @@ func TestNonColorable(t *testing.T) {
 	NewNonColorable(&buf).Write([]byte("\x1b[0m" + want + "\x1b[2J"))
 	got := buf.String()
 	if got != "hello" {
-		t.Fatalf("want %q but %q", "hello", got)
+		t.Fatalf("want %q but %q", want, got)
+	}
+
+	buf.Reset()
+	NewNonColorable(&buf).Write([]byte("\x1b["))
+	got = buf.String()
+	if got != "" {
+		t.Fatalf("want %q but %q", "", got)
 	}
 }
 
