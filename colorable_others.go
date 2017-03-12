@@ -1,4 +1,4 @@
-// +build !windows
+// +build !windows OR appengine
 
 package colorable
 
