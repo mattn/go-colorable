@@ -479,11 +479,9 @@ loop:
 			if err != nil {
 				continue
 			}
-			if n, err = strconv.Atoi(buf.String()); err == nil {
-				procGetConsoleScreenBufferInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&csbi)))
-				csbi.cursorPosition.x += short(n)
-				procSetConsoleCursorPosition.Call(uintptr(w.handle), *(*uintptr)(unsafe.Pointer(&csbi.cursorPosition)))
-			}
+			procGetConsoleScreenBufferInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&csbi)))
+			csbi.cursorPosition.x += short(n)
+			procSetConsoleCursorPosition.Call(uintptr(w.handle), *(*uintptr)(unsafe.Pointer(&csbi.cursorPosition)))
 		case 'E':
 			n, err = strconv.Atoi(buf.String())
 			if err != nil {
