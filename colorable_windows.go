@@ -627,6 +627,21 @@ loop:
 								attr |= n256foreAttr[n256]
 								i += 2
 							}
+						} else if len(token) == 5 && token[i+1] == "2" {
+							var r, g, b int
+							r, _ = strconv.Atoi(token[i+2])
+							g, _ = strconv.Atoi(token[i+3])
+							b, _ = strconv.Atoi(token[i+4])
+							i += 4
+							if r > 127 {
+								attr |= foregroundRed
+							}
+							if g > 127 {
+								attr |= foregroundGreen
+							}
+							if b > 127 {
+								attr |= foregroundBlue
+							}
 						} else {
 							attr = attr & (w.oldattr & backgroundMask)
 						}
@@ -653,6 +668,21 @@ loop:
 								attr &= foregroundMask
 								attr |= n256backAttr[n256]
 								i += 2
+							}
+						} else if len(token) == 5 && token[i+1] == "2" {
+							var r, g, b int
+							r, _ = strconv.Atoi(token[i+2])
+							g, _ = strconv.Atoi(token[i+3])
+							b, _ = strconv.Atoi(token[i+4])
+							i += 4
+							if r > 127 {
+								attr |= backgroundRed
+							}
+							if g > 127 {
+								attr |= backgroundGreen
+							}
+							if b > 127 {
+								attr |= backgroundBlue
 							}
 						} else {
 							attr = attr & (w.oldattr & foregroundMask)
