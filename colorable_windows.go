@@ -88,6 +88,7 @@ type Writer struct {
 	althandle syscall.Handle
 	oldattr   word
 	oldpos    coord
+	rest      bytes.Buffer
 }
 
 // NewColorable return new instance of Writer which handle escape sequence from File.
@@ -419,7 +420,17 @@ func (w *Writer) Write(data []byte) (n int, err error) {
 	procGetConsoleScreenBufferInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&csbi)))
 
 	handle := w.handle
-	er := bytes.NewReader(data)
+
+	var er *bytes.Reader
+	if w.rest.Len() > 0 {
+		var rest bytes.Buffer
+		w.rest.WriteTo(&rest)
+		w.rest.Reset()
+		rest.Write(data)
+		er = bytes.NewReader(rest.Bytes())
+	} else {
+		er = bytes.NewReader(data)
+	}
 	var bw [1]byte
 loop:
 	for {
@@ -438,27 +449,41 @@ loop:
 		}
 
 		if c2 == ']' {
-			if err := doTitleSequence(er); err != nil {
+			w.rest.WriteByte(c1)
+			w.rest.WriteByte(c2)
+			er.WriteTo(&w.rest)
+			if bytes.IndexByte(w.rest.Bytes(), 0x07) == -1 {
 				break loop
 			}
+			er = bytes.NewReader(w.rest.Bytes()[2:])
+			err := doTitleSequence(er)
+			if err != nil {
+				break loop
+			}
+			w.rest.Reset()
 			continue
 		}
 		if c2 != 0x5b {
 			continue
 		}
 
+		w.rest.WriteByte(c1)
+		w.rest.WriteByte(c2)
+		er.WriteTo(&w.rest)
+
 		var buf bytes.Buffer
 		var m byte
-		for {
-			c, err := er.ReadByte()
-			if err != nil {
-				break loop
-			}
+		for i, c := range w.rest.Bytes()[2:] {
 			if ('a' <= c && c <= 'z') || ('A' <= c && c <= 'Z') || c == '@' {
 				m = c
+				er = bytes.NewReader(w.rest.Bytes()[2+i+1:])
+				w.rest.Reset()
 				break
 			}
 			buf.Write([]byte(string(c)))
+		}
+		if m == 0 {
+			break loop
 		}
 
 		switch m {
