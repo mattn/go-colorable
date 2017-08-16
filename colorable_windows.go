@@ -518,6 +518,9 @@ loop:
 			}
 			procGetConsoleScreenBufferInfo.Call(uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
 			csbi.cursorPosition.x -= short(n)
+			if csbi.cursorPosition.x < 0 {
+				csbi.cursorPosition.x = 0
+			}
 			procSetConsoleCursorPosition.Call(uintptr(handle), *(*uintptr)(unsafe.Pointer(&csbi.cursorPosition)))
 		case 'E':
 			n, err = strconv.Atoi(buf.String())
