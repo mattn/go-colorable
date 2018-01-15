@@ -625,10 +625,10 @@ loop:
 				cursor = coord{x: csbi.cursorPosition.x, y: csbi.cursorPosition.y}
 				count = dword(csbi.size.x - csbi.cursorPosition.x)
 			case 1:
-				cursor = coord{x: csbi.window.left, y: csbi.window.top + csbi.cursorPosition.y}
+				cursor = coord{x: csbi.window.left, y: csbi.cursorPosition.y}
 				count = dword(csbi.size.x - csbi.cursorPosition.x)
 			case 2:
-				cursor = coord{x: csbi.window.left, y: csbi.window.top + csbi.cursorPosition.y}
+				cursor = coord{x: csbi.window.left, y: csbi.cursorPosition.y}
 				count = dword(csbi.size.x)
 			}
 			procFillConsoleOutputCharacter.Call(uintptr(handle), uintptr(' '), uintptr(count), *(*uintptr)(unsafe.Pointer(&cursor)), uintptr(unsafe.Pointer(&written)))
