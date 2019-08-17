@@ -5,12 +5,12 @@ import (
 	"io"
 )
 
-// NonColorable hold writer but remove escape sequence.
+// NonColorable holds writer but removes escape sequence.
 type NonColorable struct {
 	out io.Writer
 }
 
-// NewNonColorable return new instance of Writer which remove escape sequence from Writer.
+// NewNonColorable returns new instance of Writer which removes escape sequence from Writer.
 func NewNonColorable(w io.Writer) io.Writer {
 	return &NonColorable{out: w}
 }
