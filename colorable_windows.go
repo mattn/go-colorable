@@ -414,7 +414,7 @@ func doTitleSequence(er *bytes.Reader) error {
 	return nil
 }
 
-// Write write data on console
+// Write data on console
 func (w *Writer) Write(data []byte) (n int, err error) {
 	var csbi consoleScreenBufferInfo
 	procGetConsoleScreenBufferInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&csbi)))

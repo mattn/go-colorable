@@ -15,7 +15,7 @@ func NewNonColorable(w io.Writer) io.Writer {
 	return &NonColorable{out: w}
 }
 
-// Write write data on console
+// Write data on console
 func (w *NonColorable) Write(data []byte) (n int, err error) {
 	er := bytes.NewReader(data)
 	var bw [1]byte
