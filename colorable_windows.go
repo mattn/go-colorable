@@ -81,7 +81,7 @@ var (
 	procCreateConsoleScreenBuffer  = kernel32.NewProc("CreateConsoleScreenBuffer")
 )
 
-// Writer provide colorable Writer to the console
+// Writer provides colorable Writer to the console
 type Writer struct {
 	out       io.Writer
 	handle    syscall.Handle
@@ -91,7 +91,7 @@ type Writer struct {
 	rest      bytes.Buffer
 }
 
-// NewColorable return new instance of Writer which handle escape sequence from File.
+// NewColorable returns new instance of Writer which handles escape sequence from File.
 func NewColorable(file *os.File) io.Writer {
 	if file == nil {
 		panic("nil passed instead of *os.File to NewColorable()")
@@ -106,12 +106,12 @@ func NewColorable(file *os.File) io.Writer {
 	return file
 }
 
-// NewColorableStdout return new instance of Writer which handle escape sequence for stdout.
+// NewColorableStdout returns new instance of Writer which handles escape sequence for stdout.
 func NewColorableStdout() io.Writer {
 	return NewColorable(os.Stdout)
 }
 
-// NewColorableStderr return new instance of Writer which handle escape sequence for stderr.
+// NewColorableStderr returns new instance of Writer which handles escape sequence for stderr.
 func NewColorableStderr() io.Writer {
 	return NewColorable(os.Stderr)
 }
@@ -414,7 +414,7 @@ func doTitleSequence(er *bytes.Reader) error {
 	return nil
 }
 
-// Write write data on console
+// Write writes data on console
 func (w *Writer) Write(data []byte) (n int, err error) {
 	var csbi consoleScreenBufferInfo
 	procGetConsoleScreenBufferInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&csbi)))
