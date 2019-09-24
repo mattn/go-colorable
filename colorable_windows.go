@@ -12,8 +12,6 @@ import (
 	"strings"
 	"syscall"
 	"unsafe"
-
-	"github.com/mattn/go-isatty"
 )
 
 const (
@@ -635,6 +633,30 @@ loop:
 			}
 			procFillConsoleOutputCharacter.Call(uintptr(handle), uintptr(' '), uintptr(count), *(*uintptr)(unsafe.Pointer(&cursor)), uintptr(unsafe.Pointer(&written)))
 			procFillConsoleOutputAttribute.Call(uintptr(handle), uintptr(csbi.attributes), uintptr(count), *(*uintptr)(unsafe.Pointer(&cursor)), uintptr(unsafe.Pointer(&written)))
+		case 'X':
+			n := 0
+			if buf.Len() > 0 {
+				n, err = strconv.Atoi(buf.String())
+				if err != nil {
+					continue
+				}
+			}
+			procGetConsoleScreenBufferInfo.Call(uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
+			var cursor coord
+			var count, written dword
+			cursor = coord{x: csbi.cursorPosition.x, y: csbi.cursorPosition.y}
+			// switch n {
+			// case 0:
+			// 	count = dword(csbi.size.x - csbi.cursorPosition.x)
+			// case 1:
+			// 	cursor = coord{x: csbi.window.left, y: csbi.cursorPosition.y}
+			// 	count = dword(csbi.size.x - csbi.cursorPosition.x)
+			// case 2:
+			// 	cursor = coord{x: csbi.window.left, y: csbi.cursorPosition.y}
+			// 	count = dword(csbi.size.x)
+			// }
+			procFillConsoleOutputCharacter.Call(uintptr(handle), uintptr(' '), uintptr(n), *(*uintptr)(unsafe.Pointer(&cursor)), uintptr(unsafe.Pointer(&written)))
+			procFillConsoleOutputAttribute.Call(uintptr(handle), uintptr(csbi.attributes), uintptr(n), *(*uintptr)(unsafe.Pointer(&cursor)), uintptr(unsafe.Pointer(&written)))
 		case 'm':
 			procGetConsoleScreenBufferInfo.Call(uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
 			attr := csbi.attributes
