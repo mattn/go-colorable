@@ -565,6 +565,9 @@ loop:
 			if err != nil {
 				continue
 			}
+			if n < 1 {
+				n = 1
+			}
 			procGetConsoleScreenBufferInfo.Call(uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
 			csbi.cursorPosition.x = short(n - 1)
 			procSetConsoleCursorPosition.Call(uintptr(handle), *(*uintptr)(unsafe.Pointer(&csbi.cursorPosition)))
