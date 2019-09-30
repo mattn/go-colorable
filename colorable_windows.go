@@ -419,7 +419,7 @@ func atoiWithDefault(s string, def int) (int, error) {
 	if s == "" {
 		return def, nil
 	}
-	return strconv.Atoi(buf.String())
+	return strconv.Atoi(s)
 }
 
 // Write writes data on console
