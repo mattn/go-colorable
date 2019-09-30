@@ -414,6 +414,14 @@ func doTitleSequence(er *bytes.Reader) error {
 	return nil
 }
 
+// returns Atoi(s) unless s == "" in which case it returns def
+func atoiWithDefault(s string, def int) (int, error) {
+	if s == "" {
+		return def, nil
+	}
+	return strconv.Atoi(buf.String())
+}
+
 // Write writes data on console
 func (w *Writer) Write(data []byte) (n int, err error) {
 	var csbi consoleScreenBufferInfo
@@ -500,7 +508,7 @@ loop:
 
 		switch m {
 		case 'A':
-			n, err = strconv.Atoi(buf.String())
+			n, err = atoiWithDefault(buf.String(), 1)
 			if err != nil {
 				continue
 			}
@@ -508,7 +516,7 @@ loop:
 			csbi.cursorPosition.y -= short(n)
 			procSetConsoleCursorPosition.Call(uintptr(handle), *(*uintptr)(unsafe.Pointer(&csbi.cursorPosition)))
 		case 'B':
-			n, err = strconv.Atoi(buf.String())
+			n, err = atoiWithDefault(buf.String(), 1)
 			if err != nil {
 				continue
 			}
@@ -516,7 +524,7 @@ loop:
 			csbi.cursorPosition.y += short(n)
 			procSetConsoleCursorPosition.Call(uintptr(handle), *(*uintptr)(unsafe.Pointer(&csbi.cursorPosition)))
 		case 'C':
-			n, err = strconv.Atoi(buf.String())
+			n, err = atoiWithDefault(buf.String(), 1)
 			if err != nil {
 				continue
 			}
@@ -524,7 +532,7 @@ loop:
 			csbi.cursorPosition.x += short(n)
 			procSetConsoleCursorPosition.Call(uintptr(handle), *(*uintptr)(unsafe.Pointer(&csbi.cursorPosition)))
 		case 'D':
-			n, err = strconv.Atoi(buf.String())
+			n, err = atoiWithDefault(buf.String(), 1)
 			if err != nil {
 				continue
 			}
