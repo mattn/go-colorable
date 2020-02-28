@@ -27,6 +27,8 @@ const (
 	backgroundRed       = 0x40
 	backgroundIntensity = 0x80
 	backgroundMask      = (backgroundRed | backgroundBlue | backgroundGreen | backgroundIntensity)
+
+	cENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x4
 )
 
 const (
@@ -78,6 +80,7 @@ var (
 	procGetConsoleCursorInfo       = kernel32.NewProc("GetConsoleCursorInfo")
 	procSetConsoleCursorInfo       = kernel32.NewProc("SetConsoleCursorInfo")
 	procSetConsoleTitle            = kernel32.NewProc("SetConsoleTitleW")
+	procGetConsoleMode             = kernel32.NewProc("GetConsoleMode")
 	procCreateConsoleScreenBuffer  = kernel32.NewProc("CreateConsoleScreenBuffer")
 )
 
@@ -98,6 +101,10 @@ func NewColorable(file *os.File) io.Writer {
 	}
 
 	if isatty.IsTerminal(file.Fd()) {
+		var mode uint32
+		if r, _, _ := procGetConsoleMode.Call(file.Fd(), uintptr(unsafe.Pointer(&mode))); r != 0 && mode&cENABLE_VIRTUAL_TERMINAL_PROCESSING != 0 {
+			return file
+		}
 		var csbi consoleScreenBufferInfo
 		handle := syscall.Handle(file.Fd())
 		procGetConsoleScreenBufferInfo.Call(uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
