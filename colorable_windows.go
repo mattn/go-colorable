@@ -81,6 +81,7 @@ var (
 	procSetConsoleCursorInfo       = kernel32.NewProc("SetConsoleCursorInfo")
 	procSetConsoleTitle            = kernel32.NewProc("SetConsoleTitleW")
 	procGetConsoleMode             = kernel32.NewProc("GetConsoleMode")
+	procSetConsoleMode             = kernel32.NewProc("SetConsoleMode")
 	procCreateConsoleScreenBuffer  = kernel32.NewProc("CreateConsoleScreenBuffer")
 )
 
@@ -1009,4 +1010,24 @@ func n256setup() {
 		n256foreAttr[i] = c.foregroundAttr()
 		n256backAttr[i] = c.backgroundAttr()
 	}
+}
+
+// EnableColorsStdout enable colors if possible.
+func EnableColorsStdout(enabled *bool) func() {
+	var mode uint32
+	h := os.Stdout.Fd()
+	if r, _, _ := procGetConsoleMode.Call(h, uintptr(unsafe.Pointer(&mode))); r != 0 {
+		if r, _, _ = procSetConsoleMode.Call(h, uintptr(mode|cENABLE_VIRTUAL_TERMINAL_PROCESSING)); r != 0 {
+			if enabled != nil {
+				*enabled = true
+			}
+			return func() {
+				procSetConsoleMode.Call(h, uintptr(mode))
+			}
+		}
+	}
+	if enabled != nil {
+		*enabled = true
+	}
+	return func() {}
 }
