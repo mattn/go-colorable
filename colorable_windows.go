@@ -10,6 +10,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"sync"
 	"syscall"
 	"unsafe"
 
@@ -94,6 +95,7 @@ type Writer struct {
 	oldattr   word
 	oldpos    coord
 	rest      bytes.Buffer
+	mutex     sync.Mutex
 }
 
 // NewColorable returns new instance of Writer which handles escape sequence from File.
@@ -433,6 +435,8 @@ func atoiWithDefault(s string, def int) (int, error) {
 
 // Write writes data on console
 func (w *Writer) Write(data []byte) (n int, err error) {
+	w.mutex.Lock()
+	defer w.mutex.Unlock()
 	var csbi consoleScreenBufferInfo
 	procGetConsoleScreenBufferInfo.Call(uintptr(w.handle), uintptr(unsafe.Pointer(&csbi)))
 
