@@ -27,6 +27,8 @@ const (
 	backgroundRed       = 0x40
 	backgroundIntensity = 0x80
 	backgroundMask      = (backgroundRed | backgroundBlue | backgroundGreen | backgroundIntensity)
+	commonLvbReverse    = 0x4000
+	commonLvbUnderscore = 0x8000
 
 	cENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x4
 )
@@ -683,14 +685,18 @@ loop:
 					switch {
 					case n == 0 || n == 100:
 						attr = w.oldattr
-					case 1 <= n && n <= 5:
+					case n == 4:
+						attr |= commonLvbUnderscore
+					case (1 <= n && n <= 3) || n == 5:
 						attr |= foregroundIntensity
 					case n == 7:
-						attr = ((attr & foregroundMask) << 4) | ((attr & backgroundMask) >> 4)
-					case n == 22 || n == 25:
-						attr |= foregroundIntensity
+						attr |= commonLvbReverse
+					case n == 22:
+						attr &^= foregroundIntensity
+					case n == 24:
+						attr &^= commonLvbUnderscore
 					case n == 27:
-						attr = ((attr & foregroundMask) << 4) | ((attr & backgroundMask) >> 4)
+						attr &^= commonLvbReverse
 					case 30 <= n && n <= 37:
 						attr &= backgroundMask
 						if (n-30)&1 != 0 {
