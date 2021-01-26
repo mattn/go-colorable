@@ -452,18 +452,19 @@ func (w *Writer) Write(data []byte) (n int, err error) {
 	} else {
 		er = bytes.NewReader(data)
 	}
-	var bw [1]byte
+	var plaintext bytes.Buffer
 loop:
 	for {
 		c1, err := er.ReadByte()
 		if err != nil {
+			plaintext.WriteTo(w.out)
 			break loop
 		}
 		if c1 != 0x1b {
-			bw[0] = c1
-			w.out.Write(bw[:])
+			plaintext.WriteByte(c1)
 			continue
 		}
+		plaintext.WriteTo(w.out)
 		c2, err := er.ReadByte()
 		if err != nil {
 			break loop
