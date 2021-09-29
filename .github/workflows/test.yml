@@ -26,7 +26,7 @@ jobs:
     steps:
       - uses: actions/setup-go@v2
         with:
-          go-versions: ${{ matrix.go }}
+          go-version: ${{ matrix.go }}
       - uses: actions/checkout@v2
       - name: test
         shell: bash
