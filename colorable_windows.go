@@ -87,9 +87,14 @@ var (
 	procCreateConsoleScreenBuffer  = kernel32.NewProc("CreateConsoleScreenBuffer")
 )
 
+type filewriter interface {
+	io.Writer
+	Fd() uintptr
+}
+
 // Writer provides colorable Writer to the console
 type Writer struct {
-	out       io.Writer
+	out       filewriter
 	handle    syscall.Handle
 	althandle syscall.Handle
 	oldattr   word
@@ -99,7 +104,7 @@ type Writer struct {
 }
 
 // NewColorable returns new instance of Writer which handles escape sequence from File.
-func NewColorable(file *os.File) io.Writer {
+func NewColorable(file filewriter) io.Writer {
 	if file == nil {
 		panic("nil passed instead of *os.File to NewColorable()")
 	}
