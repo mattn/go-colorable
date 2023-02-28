@@ -99,18 +99,19 @@ type Writer struct {
 }
 
 // NewColorable returns new instance of Writer which handles escape sequence from File.
-func NewColorable(file *os.File) io.Writer {
+func NewColorable(file io.Writer) io.Writer {
 	if file == nil {
-		panic("nil passed instead of *os.File to NewColorable()")
+		panic("nil passed instead of io.Writer to NewColorable()")
 	}
 
-	if isatty.IsTerminal(file.Fd()) {
+	if f, ok := file.(filelike); isatty.IsWriterTerminal(file) && ok {
+		fd := f.Fd()
 		var mode uint32
-		if r, _, _ := procGetConsoleMode.Call(file.Fd(), uintptr(unsafe.Pointer(&mode))); r != 0 && mode&cENABLE_VIRTUAL_TERMINAL_PROCESSING != 0 {
+		if r, _, _ := procGetConsoleMode.Call(fd, uintptr(unsafe.Pointer(&mode))); r != 0 && mode&cENABLE_VIRTUAL_TERMINAL_PROCESSING != 0 {
 			return file
 		}
 		var csbi consoleScreenBufferInfo
-		handle := syscall.Handle(file.Fd())
+		handle := syscall.Handle(fd)
 		procGetConsoleScreenBufferInfo.Call(uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
 		return &Writer{out: file, handle: handle, oldattr: csbi.attributes, oldpos: coord{0, 0}}
 	}
@@ -125,6 +126,10 @@ func NewColorableStdout() io.Writer {
 // NewColorableStderr returns new instance of Writer which handles escape sequence for stderr.
 func NewColorableStderr() io.Writer {
 	return NewColorable(os.Stderr)
+}
+
+type filelike interface {
+	Fd() uintptr
 }
 
 var color256 = map[int]int{
