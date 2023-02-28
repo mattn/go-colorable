@@ -11,9 +11,9 @@ import (
 )
 
 // NewColorable returns new instance of Writer which handles escape sequence.
-func NewColorable(file *os.File) io.Writer {
+func NewColorable(file io.Writer) io.Writer {
 	if file == nil {
-		panic("nil passed instead of *os.File to NewColorable()")
+		panic("nil passed instead of io.Writer to NewColorable()")
 	}
 
 	return file
