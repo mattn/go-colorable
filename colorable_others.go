@@ -7,7 +7,7 @@ import (
 	"io"
 	"os"
 
-	_ "github.com/mattn/go-isatty"
+	_ "golang.org/x/term"
 )
 
 // NewColorable returns new instance of Writer which handles escape sequence.

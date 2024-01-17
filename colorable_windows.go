@@ -14,7 +14,7 @@ import (
 	"syscall"
 	"unsafe"
 
-	"github.com/mattn/go-isatty"
+	"golang.org/x/term"
 )
 
 const (
@@ -104,7 +104,7 @@ func NewColorable(file *os.File) io.Writer {
 		panic("nil passed instead of *os.File to NewColorable()")
 	}
 
-	if isatty.IsTerminal(file.Fd()) {
+	if term.IsTerminal(int(file.Fd())) {
 		var mode uint32
 		if r, _, _ := procGetConsoleMode.Call(file.Fd(), uintptr(unsafe.Pointer(&mode))); r != 0 && mode&cENABLE_VIRTUAL_TERMINAL_PROCESSING != 0 {
 			return file
