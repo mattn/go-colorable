@@ -560,7 +560,7 @@ loop:
 			}
 			procSetConsoleCursorPosition.Call(uintptr(handle), *(*uintptr)(unsafe.Pointer(&csbi.cursorPosition)))
 		case 'E':
-			n, err = strconv.Atoi(buf.String())
+			n, err = atoiWithDefault(buf.String(), 1)
 			if err != nil {
 				continue
 			}
@@ -569,7 +569,7 @@ loop:
 			csbi.cursorPosition.y += short(n)
 			procSetConsoleCursorPosition.Call(uintptr(handle), *(*uintptr)(unsafe.Pointer(&csbi.cursorPosition)))
 		case 'F':
-			n, err = strconv.Atoi(buf.String())
+			n, err = atoiWithDefault(buf.String(), 1)
 			if err != nil {
 				continue
 			}
