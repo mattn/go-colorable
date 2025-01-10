@@ -48,17 +48,17 @@ func TestNonColorable(t *testing.T) {
 }
 
 func TestNonColorableNil(t *testing.T) {
-	paniced := false
+	panicked := false
 	func() {
 		defer func() {
 			recover()
-			paniced = true
+			panicked = true
 		}()
 		NewNonColorable(nil)
 		NewColorable(nil)
 	}()
 
-	if !paniced {
+	if !panicked {
 		t.Fatalf("should panic")
 	}
 }
