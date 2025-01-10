@@ -11,7 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
+	syscall "golang.org/x/sys/windows"
 	"unsafe"
 
 	"github.com/mattn/go-isatty"
@@ -73,7 +73,7 @@ type consoleCursorInfo struct {
 }
 
 var (
-	kernel32                       = syscall.NewLazyDLL("kernel32.dll")
+	kernel32                       = syscall.NewLazySystemDLL("kernel32.dll")
 	procGetConsoleScreenBufferInfo = kernel32.NewProc("GetConsoleScreenBufferInfo")
 	procSetConsoleTextAttribute    = kernel32.NewProc("SetConsoleTextAttribute")
 	procSetConsoleCursorPosition   = kernel32.NewProc("SetConsoleCursorPosition")
