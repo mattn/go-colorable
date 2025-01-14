@@ -5,10 +5,10 @@
 [![GoDoc](https://godoc.org/github.com/mattn/go-colorable?status.svg)](http://godoc.org/github.com/mattn/go-colorable)
 [![Go Report Card](https://goreportcard.com/badge/mattn/go-colorable)](https://goreportcard.com/report/mattn/go-colorable)
 
-Colorable writer for windows.
+Colorable writer for Windows.
 
-For example, most of logger packages doesn't show colors on windows. (I know we can do it with ansicon. But I don't want.)
-This package is possible to handle escape sequence for ansi color on windows.
+For example, most of logger packages doesn't show colors on Windows. (I know we can do it with ansicon. But I don't want.)
+This package is possible to handle escape sequence for ansi color on Windows.
 
 ## Too Bad!
 
@@ -31,7 +31,7 @@ logrus.Error("something error")
 logrus.Fatal("panic")
 ```
 
-You can compile above code on non-windows OSs.
+You can compile above code on non-Windows OSs.
 
 ## Installation
 
