@@ -101,7 +101,7 @@ type writer struct {
 // NewColorable returns new instance of writer which handles escape sequence from File.
 func NewColorable(file *os.File) io.Writer {
 	if file == nil {
-		panic("nil passed instead of *os.File to NewColorable()")
+		return NewNonColorable(io.Discard)
 	}
 
 	if isatty.IsTerminal(file.Fd()) {
@@ -119,11 +119,17 @@ func NewColorable(file *os.File) io.Writer {
 
 // NewColorableStdout returns new instance of writer which handles escape sequence for stdout.
 func NewColorableStdout() io.Writer {
+	if os.Stdout == nil {
+		return NewNonColorable(io.Discard)
+	}
 	return NewColorable(os.Stdout)
 }
 
 // NewColorableStderr returns new instance of writer which handles escape sequence for stderr.
 func NewColorableStderr() io.Writer {
+	if os.Stderr == nil {
+		return NewNonColorable(io.Discard)
+	}
 	return NewColorable(os.Stderr)
 }
 
