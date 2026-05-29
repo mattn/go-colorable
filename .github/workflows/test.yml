@@ -19,10 +19,10 @@ jobs:
           - '1.25'
           - '1.24'
     steps:
-      - uses: actions/setup-go@v2
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
         with:
           go-version: ${{ matrix.go }}
-      - uses: actions/checkout@v2
       - name: test
         shell: bash
         run: |
