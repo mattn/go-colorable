@@ -791,7 +791,7 @@ loop:
 						} else {
 							attr = attr & (w.oldattr & foregroundMask)
 						}
-					case n == 49: // reset foreground color.
+					case n == 49: // reset background color.
 						attr &= foregroundMask
 						attr |= w.oldattr & backgroundMask
 					case 90 <= n && n <= 97:
@@ -1038,7 +1038,7 @@ func n256setup() {
 	}
 }
 
-// EnableColorsStdout enable colors if possible.
+// EnableColorsStdout enables colors if possible.
 func EnableColorsStdout(enabled *bool) func() {
 	var mode uint32
 	h := os.Stdout.Fd()

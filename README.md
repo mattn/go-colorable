@@ -2,13 +2,13 @@
 
 [![Build Status](https://github.com/mattn/go-colorable/workflows/test/badge.svg)](https://github.com/mattn/go-colorable/actions?query=workflow%3Atest)
 [![Codecov](https://codecov.io/gh/mattn/go-colorable/branch/master/graph/badge.svg)](https://codecov.io/gh/mattn/go-colorable)
-[![GoDoc](https://godoc.org/github.com/mattn/go-colorable?status.svg)](http://godoc.org/github.com/mattn/go-colorable)
+[![GoDoc](https://godoc.org/github.com/mattn/go-colorable?status.svg)](https://pkg.go.dev/github.com/mattn/go-colorable)
 [![Go Report Card](https://goreportcard.com/badge/mattn/go-colorable)](https://goreportcard.com/report/mattn/go-colorable)
 
 Colorable writer for windows.
 
-For example, most of logger packages doesn't show colors on windows. (I know we can do it with ansicon. But I don't want.)
-This package is possible to handle escape sequence for ansi color on windows.
+For example, most logger packages don't show colors on Windows. (I know we can do it with ansicon. But I don't want.)
+This package can handle ANSI color escape sequences on Windows.
 
 ## Too Bad!
 

@@ -29,7 +29,7 @@ func NewColorableStderr() io.Writer {
 	return os.Stderr
 }
 
-// EnableColorsStdout enable colors if possible.
+// EnableColorsStdout enables colors if possible.
 func EnableColorsStdout(enabled *bool) func() {
 	if enabled != nil {
 		*enabled = true
