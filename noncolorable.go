@@ -11,7 +11,11 @@ type NonColorable struct {
 }
 
 // NewNonColorable returns new instance of Writer which removes escape sequence from Writer.
+// A nil writer is treated as io.Discard so Write does not panic.
 func NewNonColorable(w io.Writer) io.Writer {
+	if w == nil {
+		w = io.Discard
+	}
 	return &NonColorable{out: w}
 }
 
