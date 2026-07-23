@@ -13,7 +13,7 @@ import (
 // NewColorable returns new instance of Writer which handles escape sequence.
 func NewColorable(file *os.File) io.Writer {
 	if file == nil {
-		panic("nil passed instead of *os.File to NewColorable()")
+		return io.Discard
 	}
 
 	return file
