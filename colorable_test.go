@@ -96,3 +96,17 @@ func TestColorable(t *testing.T) {
 		t.Fatalf("should os.Stdout on UNIX")
 	}
 }
+
+func TestNewColorableWriter(t *testing.T) {
+	// Non-file writer should pass through unchanged.
+	var buf bytes.Buffer
+	w := NewColorableWriter(&buf)
+	if w != &buf {
+		t.Fatal("expected pass-through for non-file writer")
+	}
+	// *os.File should delegate to NewColorable (non-nil).
+	w2 := NewColorableWriter(os.Stdout)
+	if w2 == nil {
+		t.Fatal("expected non-nil for os.Stdout")
+	}
+}
