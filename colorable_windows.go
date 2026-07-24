@@ -128,6 +128,18 @@ func NewColorableStderr() io.Writer {
 	return NewColorable(os.Stderr)
 }
 
+// NewColorableWriter returns a writer that handles escape sequences.
+// If w is an *os.File, it delegates to NewColorable for full TTY support.
+// Otherwise, w is returned as-is (non-TTY writers pass through unchanged).
+// This allows callers with an io.Writer (e.g. from a library) to get
+// colorable output without requiring an *os.File (#65).
+func NewColorableWriter(w io.Writer) io.Writer {
+	if f, ok := w.(*os.File); ok {
+		return NewColorable(f)
+	}
+	return w
+}
+
 var color256 = map[int]int{
 	0:   0x000000,
 	1:   0x800000,
