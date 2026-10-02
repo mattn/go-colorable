@@ -128,6 +128,32 @@ func NewColorableStderr() io.Writer {
 	return NewColorable(os.Stderr)
 }
 
+// NewColorableWriter returns new instance of writer which handles escape sequence.
+func NewColorableWriter(w io.Writer) io.Writer {
+	if w == nil {
+		panic("nil passed instead of io.Writer to NewColorableWriter()")
+	}
+
+	if f, ok := w.(*os.File); ok {
+		return NewColorable(f)
+	}
+
+	if f, ok := w.(interface{ Fd() uintptr }); ok {
+		if isatty.IsTerminal(f.Fd()) {
+			var mode uint32
+			if r, _, _ := procGetConsoleMode.Call(f.Fd(), uintptr(unsafe.Pointer(&mode))); r != 0 && mode&cENABLE_VIRTUAL_TERMINAL_PROCESSING != 0 {
+				return w
+			}
+			var csbi consoleScreenBufferInfo
+			handle := syscall.Handle(f.Fd())
+			procGetConsoleScreenBufferInfo.Call(uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
+			return &writer{out: w, handle: handle, oldattr: csbi.attributes, curattr: csbi.attributes, oldpos: coord{0, 0}}
+		}
+	}
+
+	return w
+}
+
 var color256 = map[int]int{
 	0:   0x000000,
 	1:   0x800000,

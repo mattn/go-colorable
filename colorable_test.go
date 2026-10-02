@@ -96,3 +96,72 @@ func TestColorable(t *testing.T) {
 		t.Fatalf("should os.Stdout on UNIX")
 	}
 }
+
+func TestNewColorableWriter(t *testing.T) {
+	var buf bytes.Buffer
+	w := NewColorableWriter(&buf)
+	if w == nil {
+		t.Fatal("expected non-nil writer")
+	}
+	if w != &buf {
+		t.Fatal("expected pass-through for non-file writer")
+	}
+
+	testMsg := "hello colorable"
+	n, err := w.Write([]byte(testMsg))
+	if err != nil {
+		t.Fatalf("unexpected write error: %v", err)
+	}
+	if n != len(testMsg) {
+		t.Fatalf("expected %d bytes written, got %d", len(testMsg), n)
+	}
+	if buf.String() != testMsg {
+		t.Fatalf("want %q, got %q", testMsg, buf.String())
+	}
+
+	wStdout := NewColorableWriter(os.Stdout)
+	if wStdout == nil {
+		t.Fatal("expected non-nil for os.Stdout")
+	}
+	if runtime.GOOS != "windows" && wStdout != os.Stdout {
+		t.Fatal("expected os.Stdout on UNIX")
+	}
+}
+
+type testCustomWriterWithFd struct {
+	*os.File
+}
+
+func TestNewColorableWriterCustom(t *testing.T) {
+	cw := &testCustomWriterWithFd{File: os.Stdout}
+	w := NewColorableWriter(cw)
+	if w == nil {
+		t.Fatal("expected non-nil for custom writer with Fd")
+	}
+}
+
+func TestNewColorableWriterNil(t *testing.T) {
+	panicked := false
+	func() {
+		defer func() {
+			recover()
+			panicked = true
+		}()
+		NewColorableWriter(nil)
+	}()
+	if !panicked {
+		t.Fatalf("should panic on nil")
+	}
+
+	panicked = false
+	func() {
+		defer func() {
+			recover()
+			panicked = true
+		}()
+		NewColorableWriter((*os.File)(nil))
+	}()
+	if !panicked {
+		t.Fatalf("should panic on typed nil *os.File")
+	}
+}
