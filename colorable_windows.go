@@ -118,7 +118,9 @@ func NewColorable(file *os.File) io.Writer {
 		}
 		var csbi consoleScreenBufferInfo
 		handle := syscall.Handle(fd)
-		stdsyscall.SyscallN(procGetConsoleScreenBufferInfo.Addr(), uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
+		if r, _, _ := stdsyscall.SyscallN(procGetConsoleScreenBufferInfo.Addr(), uintptr(handle), uintptr(unsafe.Pointer(&csbi))); r == 0 {
+			return file
+		}
 		return &writer{out: file, handle: handle, oldattr: csbi.attributes, curattr: csbi.attributes, oldpos: coord{0, 0}}
 	}
 	return file
@@ -243,8 +245,9 @@ loop:
 			continue
 		// https://github.com/mattn/go-colorable/issues/27
 		case '7':
-			stdsyscall.SyscallN(procGetConsoleScreenBufferInfo.Addr(), uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
-			w.oldpos = csbi.cursorPosition
+			if r, _, _ := stdsyscall.SyscallN(procGetConsoleScreenBufferInfo.Addr(), uintptr(handle), uintptr(unsafe.Pointer(&csbi))); r != 0 {
+				w.oldpos = csbi.cursorPosition
+			}
 			continue
 		case '8':
 			stdsyscall.SyscallN(procSetConsoleCursorPosition.Addr(), uintptr(handle), w.oldpos.param())
@@ -589,10 +592,11 @@ loop:
 				if w.althandle == 0 {
 					h, _, _ := stdsyscall.SyscallN(procCreateConsoleScreenBuffer.Addr(), uintptr(genericRead|genericWrite), 0, 0, uintptr(consoleTextmodeBuffer), 0, 0)
 					w.althandle = syscall.Handle(h)
-					if w.althandle != 0 {
+					if w.althandle != 0 && w.althandle != syscall.InvalidHandle {
 						handle = w.althandle
-						stdsyscall.SyscallN(procGetConsoleScreenBufferInfo.Addr(), uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
-						w.curattr = csbi.attributes
+						if r, _, _ := stdsyscall.SyscallN(procGetConsoleScreenBufferInfo.Addr(), uintptr(handle), uintptr(unsafe.Pointer(&csbi))); r != 0 {
+							w.curattr = csbi.attributes
+						}
 					}
 				}
 			}
@@ -612,13 +616,15 @@ loop:
 					syscall.CloseHandle(w.althandle)
 					w.althandle = 0
 					handle = w.handle
-					stdsyscall.SyscallN(procGetConsoleScreenBufferInfo.Addr(), uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
-					w.curattr = csbi.attributes
+					if r, _, _ := stdsyscall.SyscallN(procGetConsoleScreenBufferInfo.Addr(), uintptr(handle), uintptr(unsafe.Pointer(&csbi))); r != 0 {
+						w.curattr = csbi.attributes
+					}
 				}
 			}
 		case 's':
-			stdsyscall.SyscallN(procGetConsoleScreenBufferInfo.Addr(), uintptr(handle), uintptr(unsafe.Pointer(&csbi)))
-			w.oldpos = csbi.cursorPosition
+			if r, _, _ := stdsyscall.SyscallN(procGetConsoleScreenBufferInfo.Addr(), uintptr(handle), uintptr(unsafe.Pointer(&csbi))); r != 0 {
+				w.oldpos = csbi.cursorPosition
+			}
 		case 'u':
 			stdsyscall.SyscallN(procSetConsoleCursorPosition.Addr(), uintptr(handle), w.oldpos.param())
 		}
