@@ -15,17 +15,25 @@ func NewNonColorable(w io.Writer) io.Writer {
 	return &NonColorable{out: w}
 }
 
-// Write writes data on console
+// Write removes escape sequences and writes the remaining data to the underlying writer.
+// The returned count includes escape sequences consumed before an error.
 func (w *NonColorable) Write(data []byte) (n int, err error) {
 	for offset := 0; offset < len(data); {
 		escape := bytes.IndexByte(data[offset:], 0x1b)
 		if escape < 0 {
-			w.out.Write(data[offset:])
-			break
+			n, err := w.out.Write(data[offset:])
+			if n < len(data)-offset && err == nil {
+				err = io.ErrShortWrite
+			}
+			return offset + n, err
 		}
 		if escape > 0 {
-			if n, err := w.out.Write(data[offset : offset+escape]); err != nil || n != escape {
-				break
+			n, err := w.out.Write(data[offset : offset+escape])
+			if n < escape && err == nil {
+				err = io.ErrShortWrite
+			}
+			if err != nil {
+				return offset + n, err
 			}
 		}
 		offset += escape + 1
